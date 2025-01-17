@@ -188,6 +188,8 @@ mkdir -p /mnt/c/users/YOURNAME/airflowhome/dags
 
 Place your DAG Python files inside the `dags` folder.
 
+like the working.py file uploaded
+
 ---
 
 ## 6. Refresh Airflow UI
