@@ -191,68 +191,16 @@ Place your DAG Python files inside the `dags` folder.
 like the working.py file uploaded
 Sure! Here's how you can structure the content for your GitHub `README.md` file using proper markdown format:
 
-```markdown
-# Airflow Home Directory Structure
 
-The `AIRFLOW_HOME` directory is the main directory used by Apache Airflow to store all essential files. Below is the default folder structure for an Apache Airflow environment.
+### Explanation of Folder Structure:
+- **`airflow.cfg`**: The main configuration file for Airflow.
+- **`airflow.db`**: The default SQLite database where Airflow stores metadata. (This may vary depending on your database configuration.)
+- **`dags/`**: Contains your Directed Acyclic Graphs (DAGs), which define your workflows in Airflow.
+- **`logs/`**: Logs for each task in your DAGs are stored here.
+- **`plugins/`** (optional): Custom Airflow plugins.
+- **`unittests/`** (optional): Unit tests for your DAGs or other components.
 
-## Default Directory Structure
-
-```
-AIRFLOW_HOME/
-│
-├── airflow.cfg            # Main Airflow configuration file
-├── airflow.db             # SQLite database (or other DB depending on configuration)
-├── dags/                  # Folder containing your DAGs (Python files)
-│   ├── example_dag.py     # Example DAG file (if any)
-│   └── ...                # Other DAG files you create
-├── logs/                  # Folder to store task logs
-│   ├── <dag_id>/          # Logs are stored per DAG
-│   │   ├── <task_id>/     # Logs are stored per task within a DAG
-│   │   └── <execution_date>/  # Logs for each task instance
-│   └── ...                # Logs for other DAGs and tasks
-├── plugins/               # Folder for Airflow plugins (optional)
-│   └── ...                # Custom plugins for Airflow
-└── unittests/             # Folder for unit tests (optional)
-    └── ...                # Test files for your DAGs or other components
-```
-
-## Explanation of Each Folder/File
-
-- **`airflow.cfg`**  
-  The main configuration file for Airflow. It contains various configuration options for setting up the Airflow environment, such as the database connection, executor type, logging configuration, etc.
-
-- **`airflow.db`**  
-  The default SQLite database file that stores metadata related to Airflow tasks, DAG runs, and more. If you are using a different database like PostgreSQL or MySQL, this file will not exist, and configuration will be done in the `airflow.cfg` file.
-
-- **`dags/`**  
-  This folder contains all your DAG (Directed Acyclic Graph) files. Each DAG file is a Python script that defines a workflow. You can store multiple DAG files in this folder.
-
-- **`logs/`**  
-  Airflow logs task execution here. Logs are stored per DAG and per task instance, and include logs from the execution date of the task. This folder helps with debugging and monitoring task execution.
-
-- **`plugins/`** *(optional)*  
-  This folder is for custom Airflow plugins. If you need to extend Airflow with custom operators, sensors, hooks, etc., you can store them here.
-
-- **`unittests/`** *(optional)*  
-  If you are writing unit tests for your DAGs or other components, you can store the test files in this folder. This is not a default folder but can be useful for maintaining your workflows.
-
-## Customizing `AIRFLOW_HOME`
-
-You can change the default location of `AIRFLOW_HOME` by setting the `AIRFLOW_HOME` environment variable. For example, to set it to a custom directory, add the following to your `~/.bashrc` file (or equivalent):
-
-```bash
-export AIRFLOW_HOME=/path/to/custom/airflowhome
-```
-
-This allows you to store the Airflow directories anywhere you'd like on your file system.
-
-```
-
-This markdown format will properly render in a GitHub repository's `README.md` file. It includes code blocks for folder structure and provides clear explanations for each component of the Airflow home directory.
-
-
----
+You can modify or add additional folders based on your project’s requirements.
 
 ## 6. Refresh Airflow UI
 
