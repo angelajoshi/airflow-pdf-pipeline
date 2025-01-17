@@ -190,6 +190,23 @@ Place your DAG Python files inside the `dags` folder.
 
 like the working.py file uploaded
 
+AIRFLOW_HOME/
+│
+├── airflow.cfg            # Main Airflow configuration file
+├── airflow.db             # SQLite database (or other DB depending on configuration)
+├── dags/                  # Folder containing your DAGs (Python files)
+│   ├── example_dag.py     # Example DAG file (if any)
+│   └── ...                # Other DAG files you create
+├── logs/                  # Folder to store task logs
+│   ├── <dag_id>/          # Logs are stored per DAG
+│   │   ├── <task_id>/     # Logs are stored per task within a DAG
+│   │   └── <execution_date>/  # Logs for each task instance
+│   └── ...                # Logs for other DAGs and tasks
+├── plugins/               # Folder for Airflow plugins (optional)
+│   └── ...                # Custom plugins for Airflow
+└── unittests/             # Folder for unit tests (optional)
+
+
 ---
 
 ## 6. Refresh Airflow UI
