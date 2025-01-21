@@ -1,114 +1,104 @@
 from airflow import DAG
-from airflow.operators.python import PythonOperator, BranchPythonOperator
-from airflow.operators.bash import BashOperator
-from datetime import datetime
-from random import randint
+from airflow.operators.python import PythonOperator
+from datetime import datetime, timedelta
+from pdfminer.high_level import extract_text
+from sentence_transformers import SentenceTransformer
+from transformers import pipeline
+import os
+import json
 
+# Helper functions
+def extract_text_from_pdf(file_path, **kwargs):
+    """Extract text from a PDF."""
+    text = extract_text(file_path)
+    return text
 
-def _train_model(model):
-    """
-    Simulate model training and return a random accuracy between 1 and 10.
-    """
-    return randint(1, 10)
+def chunk_text(text, chunk_size=500, **kwargs):
+    """Split the extracted text into chunks of a specified size."""
+    return [text[i:i + chunk_size] for i in range(0, len(text), chunk_size)]
 
-def _evaluate_accuracy(ti):
-    """
-    Evaluate which model met the accuracy threshold.
-    Pull the accuracies from the XComs, check if they meet the threshold.
-    """
-    accuracies = ti.xcom_pull(task_ids=[
-        'train_model_text',
-        'train_model_summary',
-        'train_model_embedding'
-    ])
-    
-    thresholds = {
-        'text': 7,
-        'summary': 6,
-        'embedding': 8
-    }
+def generate_text_embeddings(chunks, **kwargs):
+    """Generate embeddings for each text chunk."""
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+    embeddings = model.encode(chunks)
+    return json.dumps(embeddings.tolist())  # Store embeddings as JSON
 
-    results = []
-    for model_id, accuracy in zip(['text', 'summary', 'embedding'], accuracies):
-        if accuracy >= thresholds[model_id]:
-            results.append(f"Model {model_id} met threshold with accuracy: {accuracy}")
-        else:
-            results.append(f"Model {model_id} did not meet threshold with accuracy: {accuracy}")
-    
-    
-    return "\n".join(results)
+def analyze_embeddings_for_insights(embeddings, **kwargs):
+    """Generate insights based on the embeddings."""
+    # Example: Find the most similar chunks using cosine similarity or cluster them
+    # For simplicity, let's say we return the embeddings as the 'insights'
+    return json.dumps(embeddings)  # In practice, apply clustering or other analysis here
 
-def _process_textual_data():
-    """
-    Simulate the extraction of textual data for the PDF.
-    """
-    return "Extracted Textual Data: This is a sample text to be embedded in the PDF."
+def save_output(data, output_path, **kwargs):
+    """Save the output (embeddings or insights) to a file."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        f.write(data)
 
-def _process_summary_data():
-    """
-    Simulate summarizing the extracted textual data.
-    """
-    return "Summarized Text: Key points extracted from the document."
+# Default arguments for the DAG
+default_args = {
+    'owner': 'user',
+    'retries': 2,
+    'retry_delay': timedelta(minutes=5),
+    'start_date': datetime(2025, 1, 20),
+}
 
-def _process_embedding_data():
-    """
-    Simulate the embedding of data for the PDF.
-    """
-    return "Embedding Data: Embedding the summarized and extracted text."
+# Define the Airflow DAG
+with DAG(
+    'pdf_to_insights_pipeline',
+    default_args=default_args,
+    description='Extract text, generate embeddings, and insights from a PDF',
+    schedule_interval=None,
+) as dag:
 
-
-with DAG("text_to_pdf_pipeline",
-         start_date=datetime(2023, 1, 1), 
-         schedule_interval='@daily', 
-         catchup=False) as dag:
-
-    
-    train_model_text = PythonOperator(
-        task_id='train_model_text',
-        python_callable=_train_model,
-        op_kwargs={"model": "text"}
-    )
-    
-    train_model_summary = PythonOperator(
-        task_id='train_model_summary',
-        python_callable=_train_model,
-        op_kwargs={"model": "summary"}
-    )
-    
-    train_model_embedding = PythonOperator(
-        task_id='train_model_embedding',
-        python_callable=_train_model,
-        op_kwargs={"model": "embedding"}
-    )
-    
-    
-    process_textual_data = PythonOperator(
-        task_id='process_textual_data',
-        python_callable=_process_textual_data
-    )
-    
-    process_summary_data = PythonOperator(
-        task_id='process_summary_data',
-        python_callable=_process_summary_data
-    )
-    
-    process_embedding_data = PythonOperator(
-        task_id='process_embedding_data',
-        python_callable=_process_embedding_data
+    # Task 1: Extract text from the PDF
+    extract_text_task = PythonOperator(
+        task_id='extract_text',
+        python_callable=extract_text_from_pdf,
+        op_kwargs={'file_path': '/mnt/c/Users/Devanshu/airflow/input/Raisin_Dataset.pdf'},
     )
 
-    
-    evaluate_accuracy = PythonOperator(
-        task_id="evaluate_accuracy",
-        python_callable=_evaluate_accuracy
+    # Task 2: Chunk the text
+    chunk_text_task = PythonOperator(
+        task_id='chunk_text',
+        python_callable=chunk_text,
+        provide_context=True,
     )
 
-    
-    generate_pdf = BashOperator(
-        task_id="generate_pdf",
-        bash_command="echo 'PDF generated with the data extracted and embedded.'"
+    # Task 3: Generate embeddings
+    generate_embeddings_task = PythonOperator(
+        task_id='generate_embeddings',
+        python_callable=generate_text_embeddings,
+        provide_context=True,
     )
 
-    
-    [train_model_text, train_model_summary, train_model_embedding] >> evaluate_accuracy
-    evaluate_accuracy >> [process_textual_data, process_summary_data, process_embedding_data] >> generate_pdf
+    # Task 4: Analyze embeddings for insights (e.g., clustering, similarity)
+    analyze_embeddings_task = PythonOperator(
+        task_id='analyze_embeddings_for_insights',
+        python_callable=analyze_embeddings_for_insights,
+        provide_context=True,
+    )
+
+    # Task 5: Save insights to a file
+    save_insights_task = PythonOperator(
+        task_id='save_insights',
+        python_callable=save_output,
+        provide_context=True,
+        op_kwargs={'output_path': '/mnt/c/Users/Devanshu/airflow/output/insights.json'},
+    )
+
+    # Task 6: Save embeddings to a file
+    save_embeddings_task = PythonOperator(
+        task_id='save_embeddings',
+        python_callable=save_output,
+        provide_context=True,
+        op_kwargs={'output_path': '/mnt/c/Users/Devanshu/airflow/output/embeddings.json'},
+    )
+
+    # Task dependencies
+    extract_text_task >> chunk_text_task
+    chunk_text_task >> generate_embeddings_task
+    generate_embeddings_task >> analyze_embeddings_task
+    analyze_embeddings_task >> save_insights_task
+    generate_embeddings_task >> save_embeddings_task
+
