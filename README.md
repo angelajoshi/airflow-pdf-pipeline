@@ -1,11 +1,12 @@
 # PDF to Insights Pipeline
 ![image](https://github.com/user-attachments/assets/32fca968-f0a2-42df-8c8e-57378e4cecd1)
 
+
 This project implements an **Airflow pipeline** that extracts text from a PDF, generates embeddings for the extracted text, and analyzes the embeddings to derive insights. The pipeline is designed to process PDF files, convert them into meaningful data representations (embeddings), and then analyze and save these insights.
 
 ## Features
 
-- **Text Extraction**: Extracts text from a PDF file using `pdfminer`.
+- **Text Extraction**: Extracts text from a PDF file using `pdfminer.six`.
 - **Text Chunking**: Splits extracted text into smaller chunks for efficient processing.
 - **Text Embeddings**: Uses `SentenceTransformer` to generate embeddings for each chunk.
 - **Embedding Analysis**: Analyzes embeddings for insights (e.g., clustering or similarity).
@@ -16,7 +17,7 @@ This project implements an **Airflow pipeline** that extracts text from a PDF, g
 Before running this pipeline, ensure that you have the following dependencies installed:
 
 - **Apache Airflow**: Orchestrates the workflow and tasks.
-- **pdfminer**: Extracts text from PDF files.
+- **pdfminer.six**: Extracts text from PDF files.
 - **sentence-transformers**: Generates embeddings from text chunks.
 - **transformers**: Provides natural language processing models like BART for summarization.
 - **json**: For handling JSON data.
@@ -25,7 +26,16 @@ Before running this pipeline, ensure that you have the following dependencies in
 To install the necessary dependencies, use the following command:
 
 ```bash
-pip install apache-airflow pdfminer.six sentence-transformers transformers
+pip install -r requirements.txt
+```
+
+### Requirements file (`requirements.txt`):
+
+```txt
+apache-airflow==2.5.0
+pdfminer.six==20201018
+sentence-transformers==2.2.0
+transformers==4.24.0
 ```
 
 ## Setup
@@ -77,7 +87,7 @@ After the DAG runs successfully, the following files will be generated in the `o
 - `embeddings.json`: Contains the embeddings for each chunk of text extracted from the PDF.
 - `insights.json`: Contains the analysis or insights derived from the embeddings (e.g., similarity analysis).
 
-## Example of insights.json
+## Example of `insights.json`
 
 ```json
 {
@@ -114,8 +124,23 @@ After the DAG runs successfully, the following files will be generated in the `o
 - Task 4 must complete before Task 5 (`save_insights`).
 - Task 3 must also complete before Task 6 (`save_embeddings`).
 
-- The DAG you provided should be placed in the `dags/` directory in your Airflow setup, and the PDF file should be placed in the `input/` folder.
+## License
 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Contact
+
+For further questions or issues, feel free to reach out to [your email/contact].
+
+```
+
+### Instructions for Use:
+
+1. Replace `yourusername` and `[your email/contact]` with your actual GitHub username and contact info.
+2. The `requirements.txt` file contains all the necessary dependencies for this project.
+3. The README explains the flow of the pipeline, its purpose, and how to use Airflow to trigger the pipeline.
+
+Let me know if you need any further adjustments or help!
 
 # Apache Airflow Installation on Windows
 
