@@ -1,4 +1,5 @@
 # PDF to Insights Pipeline
+![image](https://github.com/user-attachments/assets/32fca968-f0a2-42df-8c8e-57378e4cecd1)
 
 This project implements an **Airflow pipeline** that extracts text from a PDF, generates embeddings for the extracted text, and analyzes the embeddings to derive insights. The pipeline is designed to process PDF files, convert them into meaningful data representations (embeddings), and then analyze and save these insights.
 
