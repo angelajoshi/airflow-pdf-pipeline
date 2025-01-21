@@ -1,3 +1,121 @@
+# PDF to Insights Pipeline
+
+This project implements an **Airflow pipeline** that extracts text from a PDF, generates embeddings for the extracted text, and analyzes the embeddings to derive insights. The pipeline is designed to process PDF files, convert them into meaningful data representations (embeddings), and then analyze and save these insights.
+
+## Features
+
+- **Text Extraction**: Extracts text from a PDF file using `pdfminer`.
+- **Text Chunking**: Splits extracted text into smaller chunks for efficient processing.
+- **Text Embeddings**: Uses `SentenceTransformer` to generate embeddings for each chunk.
+- **Embedding Analysis**: Analyzes embeddings for insights (e.g., clustering or similarity).
+- **Output**: Saves the generated embeddings and insights into JSON files.
+
+## Requirements
+
+Before running this pipeline, ensure that you have the following dependencies installed:
+
+- **Apache Airflow**: Orchestrates the workflow and tasks.
+- **pdfminer**: Extracts text from PDF files.
+- **sentence-transformers**: Generates embeddings from text chunks.
+- **transformers**: Provides natural language processing models like BART for summarization.
+- **json**: For handling JSON data.
+- **os**: For file handling.
+
+To install the necessary dependencies, use the following command:
+
+```bash
+pip install apache-airflow pdfminer.six sentence-transformers transformers
+```
+
+## Setup
+
+1. **Clone the repository**:
+
+```bash
+git clone https://github.com/yourusername/pdf-to-insights-pipeline.git
+cd pdf-to-insights-pipeline
+```
+
+2. **Setup the Airflow environment**:
+   If you don’t have Airflow installed, you can set it up by following the instructions in the official [Apache Airflow documentation](https://airflow.apache.org/docs/apache-airflow/stable/installation/).
+
+3. **Directory Structure**:
+   - `input/`: Place your PDF files here (e.g., `Raisin_Dataset.pdf`).
+   - `output/`: The pipeline will generate `insights.json` and `embeddings.json` in this directory.
+
+## Usage
+
+1. Place your PDF file (e.g., `Raisin_Dataset.pdf`) in the `input/` directory.
+
+2. **Start the Airflow webserver** (if not already running):
+
+```bash
+airflow webserver -p 8080
+```
+
+3. **Start the Airflow scheduler** (if not already running):
+
+```bash
+airflow scheduler
+```
+
+4. **Trigger the DAG**:
+   You can trigger the DAG manually from the Airflow UI by navigating to [http://localhost:8080](http://localhost:8080), logging in, and manually triggering the `pdf_to_insights_pipeline` DAG.
+
+5. The pipeline will:
+   - Extract text from the PDF.
+   - Chunk the text into smaller pieces.
+   - Generate text embeddings for each chunk.
+   - Analyze the embeddings for insights.
+   - Save the embeddings and insights as JSON files in the `output/` directory.
+
+## Output
+
+After the DAG runs successfully, the following files will be generated in the `output/` directory:
+
+- `embeddings.json`: Contains the embeddings for each chunk of text extracted from the PDF.
+- `insights.json`: Contains the analysis or insights derived from the embeddings (e.g., similarity analysis).
+
+## Example of insights.json
+
+```json
+{
+  "insights": [
+    {
+      "chunk_id": 1,
+      "embedding": [0.12, 0.45, ...],
+      "similarity_score": 0.98
+    },
+    {
+      "chunk_id": 2,
+      "embedding": [0.33, 0.22, ...],
+      "similarity_score": 0.92
+    }
+  ]
+}
+```
+
+## DAG Details
+
+### Tasks in the DAG:
+1. **extract_text**: Extracts text from the PDF file.
+2. **chunk_text**: Splits the extracted text into manageable chunks.
+3. **generate_embeddings**: Creates embeddings for each text chunk using the `SentenceTransformer` model.
+4. **analyze_embeddings_for_insights**: Analyzes the embeddings to generate insights (e.g., clustering or similarity).
+5. **save_insights**: Saves the insights (in `insights.json`).
+6. **save_embeddings**: Saves the embeddings (in `embeddings.json`).
+
+### Dependencies:
+
+- Task 1 (`extract_text`) must run before Task 2 (`chunk_text`).
+- Task 2 must complete before Task 3 (`generate_embeddings`).
+- Task 3 must complete before Task 4 (`analyze_embeddings_for_insights`).
+- Task 4 must complete before Task 5 (`save_insights`).
+- Task 3 must also complete before Task 6 (`save_embeddings`).
+
+- The DAG you provided should be placed in the `dags/` directory in your Airflow setup, and the PDF file should be placed in the `input/` folder.
+
+
 # Apache Airflow Installation on Windows
 
 We will install Apache Airflow on Windows using the Windows Subsystem for Linux (WSL) environment.
