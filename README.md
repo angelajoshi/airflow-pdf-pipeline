@@ -124,23 +124,7 @@ After the DAG runs successfully, the following files will be generated in the `o
 - Task 4 must complete before Task 5 (`save_insights`).
 - Task 3 must also complete before Task 6 (`save_embeddings`).
 
-## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Contact
-
-For further questions or issues, feel free to reach out to [your email/contact].
-
-```
-
-### Instructions for Use:
-
-1. Replace `yourusername` and `[your email/contact]` with your actual GitHub username and contact info.
-2. The `requirements.txt` file contains all the necessary dependencies for this project.
-3. The README explains the flow of the pipeline, its purpose, and how to use Airflow to trigger the pipeline.
-
-Let me know if you need any further adjustments or help!
 
 # Apache Airflow Installation on Windows
 
